@@ -6,6 +6,7 @@ import EventDetails from "./pages/EventDetails";
 import SystemAdmin from "./pages/SystemAdmin";
 import ClubAdmin from "./pages/ClubAdmin";
 import UserDashboard from "./pages/UserDashboard";
+import Settings from "./pages/Settings";
 // import Chatbot from "./components/Chatbot";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/event/:id" element={<EventDetails />} />
+         <Route path="/settings" element={<Settings />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/system-admin" element={<SystemAdmin />} />
