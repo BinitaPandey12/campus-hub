@@ -16,8 +16,8 @@ function App() {
         {/* <Chatbot /> */}
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/event/:id" element={<EventDetails />} />
-         <Route path="/settings" element={<Settings />} />
+          <Route path="/event/:eventId" element={<EventDetails />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/system-admin" element={<SystemAdmin />} />

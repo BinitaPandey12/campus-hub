@@ -9,8 +9,8 @@ const clubsData = [
     description: "For technology enthusiasts",
     events: [
       { id: 1, name: "Hackathon 2023", date: "May 15-17", status: "upcoming" },
-      { id: 2, name: "AI Workshop", date: "June 1", status: "upcoming" }
-    ]
+      { id: 2, name: "AI Workshop", date: "June 1", status: "upcoming" },
+    ],
   },
   {
     id: 2,
@@ -18,8 +18,8 @@ const clubsData = [
     description: "All about sports and fitness",
     events: [
       { id: 3, name: "Annual Sports Day", date: "Ongoing", status: "running" },
-      { id: 4, name: "Basketball Tournament", date: "May 20", status: "upcoming" }
-    ]
+      { id: 4, name: "Basketball Tournament", date: "May 20", status: "upcoming" },
+    ],
   },
   {
     id: 3,
@@ -27,9 +27,9 @@ const clubsData = [
     description: "Creative arts and performances",
     events: [
       { id: 5, name: "Art Exhibition", date: "May 10-12", status: "running" },
-      { id: 6, name: "Drama Night", date: "June 5", status: "upcoming" }
-    ]
-  }
+      { id: 6, name: "Drama Night", date: "June 5", status: "upcoming" },
+    ],
+  },
 ];
 
 const Dashboard = () => {
@@ -67,6 +67,7 @@ const Dashboard = () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
@@ -150,7 +151,9 @@ const Dashboard = () => {
                     <p className="club-description">{club.description}</p>
                   </div>
                   <div className="club-events">
-                    <h4 className="events-title">{selectedTab === "upcoming" ? "Upcoming Events" : "Running Events"}</h4>
+                    <h4 className="events-title">
+                      {selectedTab === "upcoming" ? "Upcoming Events" : "Running Events"}
+                    </h4>
                     <ul className="events-list">
                       {filteredEvents.map(event => (
                         <li key={event.id} className={`event-item ${event.status}`}>
