@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import axios from "axios";
 import "./EventDetails.css";
 import {
   FiCalendar,
@@ -16,38 +16,80 @@ function EventDetails() {
 
   const [event, setEvent] = useState(null);
   const [userRole, setUserRole] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    setEvent({
-      id: eventId,
-      title: "AI Workshop",
-      description:
-        "Learn about AI and ML basics in this comprehensive workshop designed for beginners. Our expert instructors will guide you through hands-on exercises and real-world applications.",
-      date: "2025-06-05",
-      location: "Main Hall, Campus Building A",
-    });
+    const fetchEvent = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/events/${eventId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setEvent(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to fetch event", err);
+        setLoading(false);
+      }
+    };
 
-    const currentUser = auth.currentUser;
-    if (currentUser?.email === "clubadmin@campus.com") {
-      setUserRole("admin");
+    const fetchUserRole = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUserRole(res.data.role); // e.g., 'admin' or 'student'
+      } catch (err) {
+        console.error("Failed to get user role", err);
+        setUserRole("");
+      }
+    };
+
+    if (token) {
+      fetchEvent();
+      fetchUserRole();
     } else {
-      setUserRole("student");
-    }
-  }, [eventId]);
-
-  const handleEnroll = () => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Please log in to enroll.");
       navigate("/login");
-      return;
     }
-    alert("Enrollment successful!");
+  }, [eventId, token, navigate]);
+
+  const handleEnroll = async () => {
+    try {
+      await axios.post(
+        `http://localhost:8080/api/events/${eventId}/enroll`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Enrollment successful!");
+    } catch (err) {
+      console.error("Enrollment failed", err);
+      alert("Failed to enroll. Please try again.");
+    }
   };
 
-  const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
-      alert("Event deleted");
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/api/events/${eventId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      alert("Event deleted successfully");
+      navigate("/events");
+    } catch (err) {
+      console.error("Failed to delete event", err);
+      alert("Could not delete event");
     }
   };
 
@@ -55,7 +97,8 @@ function EventDetails() {
     navigate(`/events/${eventId}/edit`);
   };
 
-  if (!event) return <div className="loading-state">Loading event details...</div>;
+  if (loading) return <div className="loading-state">Loading event details...</div>;
+  if (!event) return <div className="error-state">Event not found</div>;
 
   return (
     <div className="event-details-container">

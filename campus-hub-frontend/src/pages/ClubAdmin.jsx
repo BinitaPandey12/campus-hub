@@ -1,27 +1,38 @@
 import React, { useEffect, useState } from "react";
 import "./Dashboard.css"; // Reusing shared styles
 import "./ClubAdmin.css";
-import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { FiUsers, FiPlusCircle, FiSettings } from "react-icons/fi";
 
 const ClubAdmin = () => {
   const [users, setUsers] = useState([]);
-  const auth = getAuth();
-  const db = getFirestore();
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "users"));
-        const usersList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setUsers(usersList);
+        const response = await axios.get("http://localhost:8080/api/users", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUsers(response.data);
       } catch (error) {
-        console.error("Error fetching users: ", error);
+        console.error("Error fetching users:", error);
+        if (error.response?.status === 401) {
+          navigate("/login");
+        }
       }
     };
-    fetchUsers();
-  }, []);
+
+    if (token) {
+      fetchUsers();
+    } else {
+      navigate("/login");
+    }
+  }, [token, navigate]);
 
   return (
     <div className="clubadmin-dashboard">
@@ -31,7 +42,7 @@ const ClubAdmin = () => {
       </div>
 
       <div className="clubadmin-actions">
-        <button className="action-btn">
+        <button className="action-btn" onClick={() => navigate("/events/new")}>
           <FiPlusCircle className="action-icon" />
           Add New Event
         </button>

@@ -1,8 +1,5 @@
-// src/pages/SystemAdmin.jsx
-
 import React, { useEffect, useState } from "react";
 import "./SystemAdmin.css";
-import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
 function SystemAdmin() {
@@ -10,29 +7,64 @@ function SystemAdmin() {
   const [admins, setAdmins] = useState([]);
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    // Fetch data from backend (mocked here)
-    setAdmins([
-      { id: 1, name: "Admin One", email: "club1@campus.com" },
-      { id: 2, name: "Admin Two", email: "club2@campus.com" },
-    ]);
+  const token = localStorage.getItem("token");
 
-    setUsers([
-      { id: 1, name: "Student A", email: "studA@campus.com" },
-      { id: 2, name: "Student B", email: "studB@campus.com" },
-    ]);
-  }, []);
+  useEffect(() => {
+    if (!token) {
+      alert("Please login first.");
+      navigate("/login");
+      return;
+    }
+
+    // ✅ Fetch admins from backend
+    fetch("http://localhost:8080/api/admins", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(res => {
+        if (res.status === 401) throw new Error("Unauthorized");
+        return res.json();
+      })
+      .then(data => setAdmins(data))
+      .catch(() => navigate("/login"));
+
+    // ✅ Fetch users from backend
+    fetch("http://localhost:8080/api/users", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(res => {
+        if (res.status === 401) throw new Error("Unauthorized");
+        return res.json();
+      })
+      .then(data => setUsers(data))
+      .catch(() => navigate("/login"));
+  }, [navigate, token]);
 
   const handleAddAdmin = () => {
-    alert("Redirect to add new club admin");
-    // navigate("/add-club-admin"); // If you have an AddAdmin form
+    navigate("/add-club-admin");
   };
 
   const handleDelete = (type, id) => {
-    const item = type === "admin" ? "Club Admin" : "User";
-    if (window.confirm(`Are you sure you want to delete this ${item}?`)) {
-      alert(`${item} with ID ${id} deleted`);
-      // Call backend delete API here
+    const endpoint = type === "admin" ? "admins" : "users";
+
+    if (window.confirm(`Delete this ${type}?`)) {
+      fetch(`http://localhost:8080/api/${endpoint}/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(res => {
+          if (res.ok) {
+            alert(`${type} deleted.`);
+            window.location.reload(); // Or re-fetch data
+          } else {
+            alert("Failed to delete.");
+          }
+        });
     }
   };
 
