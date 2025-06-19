@@ -20,13 +20,13 @@ function Login() {
         password
       });
 
-      const token = response.data.token;
+      const token = response.data.jwt; 
 
       // Save token to localStorage or sessionStorage
       localStorage.setItem("token", token);
 
       // Redirect to dashboard
-      navigate("/user-dashboard");
+      navigate("/");
     } catch (err) {
       if (err.response && err.response.status === 401) {
         setError("Invalid email or password.");

@@ -43,14 +43,24 @@ function Register() {
         body: JSON.stringify({ email, password })
       });
 
+      // if (!response.ok) {
+      //   const errData = await response.json();
+      //   throw new Error(errData.message || "Registration failed");
+      // }
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || "Registration failed");
+        let message = "Registration failed";
+        try {
+          const errData = await response.json();
+          message = errData.message || message;
+        } catch {
+          // Response body is not JSON or is empty//by bini
+        }
+        throw new Error(message);
       }
-
+      
       const data = await response.json();
       localStorage.setItem("token", data.token); // Save JWT
-      navigate("/user-dashboard");
+      navigate("/login");
     } catch (err) {
       setError(err.message || "Something went wrong");
     }
